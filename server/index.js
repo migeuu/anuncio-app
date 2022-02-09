@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const pool = require("./db");
+const PORT = 5000;
 
 // uso de middleware
 app.use(cors());
@@ -14,18 +15,11 @@ app.use(express.json());
 
 app.post("/anuncios", async (req, res) => {
   try {
-    const {
-      titulo,
-      descricao,
-      data_inicial,
-      data_final,
-      categoria,
-      email,
-      telefone,
-    } = req.body;
+    const { title, description, date_start, date_end, category, email, phone } =
+      req.body;
     const newAnuncio = await pool.query(
-      "INSERT INTO anuncio (titulo, descricao, data_inicial, data_final, categoria, email, telefone) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [titulo, descricao, data_inicial, data_final, categoria, email, telefone]
+      "INSERT INTO anuncios (title, description, date_start, date_end, category, email, phone) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [title, description, date_start, date_end, category, email, phone]
     );
     res.json(newAnuncio);
   } catch (err) {
@@ -37,7 +31,7 @@ app.post("/anuncios", async (req, res) => {
 
 app.get("/anuncios", async (req, res) => {
   try {
-    const allAnuncios = await pool.query("SELECT * FROM anuncio");
+    const allAnuncios = await pool.query("SELECT * FROM anuncios");
     res.json(allAnuncios.rows);
   } catch (err) {
     console.error(err.message);
@@ -50,7 +44,7 @@ app.get("anuncios/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const anuncio = await pool.query(
-      "SELECT * FROM anuncio WHERE idanuncio = $1",
+      "SELECT * FROM anuncios WHERE idanuncio = $1",
       [id]
     );
 
@@ -65,28 +59,12 @@ app.get("anuncios/:id", async (req, res) => {
 app.put("anuncios/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      titulo,
-      descricao,
-      data_inicial,
-      data_final,
-      categoria,
-      email,
-      telefone,
-    } = req.body;
+    const { title, description, date_start, date_end, category, email, phone } =
+      req.body;
 
     const updateAnuncio = await pool.query(
-      "UPDATE anuncio SET titulo = $1, descricao = $2, data_inicial = $3, data_final = $4, categoria = $5, email = $6, telefone = $7 WHERE idanuncio = $8 ",
-      [
-        titulo,
-        descricao,
-        data_inicial,
-        data_final,
-        categoria,
-        email,
-        telefone,
-        id,
-      ]
+      "UPDATE anuncios SET title = $1, description = $2, date_start = $3, date_end = $4, category = $5, email = $6, phone = $7 WHERE idanuncio = $8 ",
+      [title, description, date_start, date_end, category, email, phone, id]
     );
 
     res.json("Anúncio atualizado!");
@@ -101,7 +79,7 @@ app.delete("anuncios/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const deleteAnuncio = await pool.query(
-      "DELETE FROM anuncio WHERE idanuncio = $1",
+      "DELETE FROM anuncios WHERE idanuncio = $1",
       [id]
     );
 
@@ -112,6 +90,6 @@ app.delete("anuncios/:id", async (req, res) => {
 });
 
 // server methods
-app.listen(5000, () => {
-  console.log("server has started on port 5000");
+app.listen(PORT, () => {
+  console.log(`Server has started in: http://localhost:${PORT}`);
 });
